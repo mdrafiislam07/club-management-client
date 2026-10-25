@@ -60,6 +60,7 @@ import BadmintonSchedule from './pages/Badminton/BadmintonSchedule';
 import BadmintonMatch from './pages/Badminton/BadmintonMatch';
 import BadmintonPointTable from './pages/Badminton/BadmintonPointTable';
 import BadmintonProjector from './pages/Badminton/BadmintonProjector'; // 📽️ projector view
+import AiAgentWidget from './ai_agent_module/AiAgentWidget';
 
 // কমন লেআউট কম্পোনেন্ট
 const Layout = ({ darkMode, setDarkMode, user, content, handleLogout }) => {
@@ -215,6 +216,7 @@ function App() {
           <Route path="/sports/table-tennis/point-table" element={<BadmintonPointTable />} />
         </Route>
       </Routes>
+       <AiAgentWidget />
     </Router>
   );
 }
