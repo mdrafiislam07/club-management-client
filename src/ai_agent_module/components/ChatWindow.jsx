@@ -32,7 +32,7 @@ export default function ChatWindow({ messages, loading, onSend, onClose, onClear
           </div>
           <div className="ax-titles">
             <div className="ax-name">AI Assistant</div>
-            <div className="ax-sub">{voiceMode ? 'ভয়েস মোড চালু' : 'BRIU Sports Club'}</div>
+            <div className="ax-sub">{voiceMode ? 'Voice Mode Is Active' : 'BRIU Sports Club'}</div>
           </div>
         </div>
         <div className="ax-tools">

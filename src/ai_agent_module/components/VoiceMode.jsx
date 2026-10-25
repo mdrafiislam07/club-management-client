@@ -4,12 +4,12 @@ import { Mic, Stop, Compass } from './icons';
 
 const textOf = (m) => (m && (m.text ?? m.content)) || '';
 const LABELS = {
-  idle: 'কথা বলতে মাইক চাপুন',
-  listening: 'শুনছি…',
-  thinking: 'ভাবছি…',
-  speaking: 'বলছি… থামাতে চাপুন',
+  idle: 'Press mic to speak',
+  listening: 'Listening…',
+  thinking: 'Thinking…',
+  speaking: 'Speaking… Press to stop',
 };
-const HINTS = ['আজকের ম্যাচের স্কোর কত?', 'কমিটির সদস্যদের দেখাও', 'ইভেন্টস পেজে নিয়ে যাও'];
+const HINTS = ["What's today's match score?", 'Show committee members', 'Take me to events page'];
 const isHere = (url) =>
   url === `${window.location.pathname}${window.location.search}` || url === window.location.pathname;
 
@@ -121,7 +121,7 @@ export default function VoiceMode({ messages, loading, onSend, onOpenPage, voice
         </div>
 
         <div className="ax-status">
-          {stt.supported ? LABELS[state] : 'এই ব্রাউজারে ভয়েস ইনপুট চলে না। Chrome বা Edge ব্যবহার করুন।'}
+          {stt.supported ? LABELS[state] : 'Voice input is not supported in this browser. Please use Chrome or Edge.'}
         </div>
         <div className="ax-caption">{caption}</div>
       </div>
@@ -129,16 +129,16 @@ export default function VoiceMode({ messages, loading, onSend, onOpenPage, voice
       <div className="ax-vlow">
         {reply && reply.text && (
           <div className={`ax-card${reply.error ? ' ax-card-err' : ''}`}>
-            {heard && <div className="ax-card-you">আপনি: {heard}</div>}
+            {heard && <div className="ax-card-you">You: {heard}</div>}
             <div className="ax-card-text">{reply.text}</div>
             {reply.action && (
               <>
                 <button type="button" className="ax-go" onClick={() => onOpenPage(reply.action.url)}>
                   <Compass size={14} />
-                  {reply.action.label || 'পেজটি'} খুলুন <span>→</span>
+                  Open {reply.action.label || 'page'} <span>→</span>
                 </button>
                 {state === 'speaking' && (
-                  <div className="ax-navnote">কথা শেষ হলে পেজে নিয়ে যাব</div>
+                  <div className="ax-navnote">Will navigate to the page after speaking finishes</div>
                 )}
               </>
             )}
