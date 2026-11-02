@@ -285,9 +285,15 @@ function CTeam() {
           .ct-skel { height: 110px; border-radius: 18px; border: 1px solid var(--line); background: #e3edff; animation: ct-pulse 1.4s ease-in-out infinite; }
           @keyframes ct-pulse { 50% { opacity: .55; } }
 
-          /* ---------- Phones: keep the site header readable on the light page ---------- */
+          /* ---------- Phones: keep the site header DARK (same as desktop) so
+             its white text, logo and menu button stay readable.
+             If your desktop header colour is different, change the value below. ---------- */
           @media (max-width: 900px), (pointer: coarse) {
-            .ct-page > header { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background-color: rgba(255,255,255,.97) !important; }
+            .ct-page > header {
+              backdrop-filter: none !important;
+              -webkit-backdrop-filter: none !important;
+              background-color: #0f1b3d !important;
+            }
           }
 
           @media (prefers-reduced-motion: reduce) {
