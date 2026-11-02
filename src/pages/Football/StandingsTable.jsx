@@ -12,43 +12,67 @@ export const tiebreakText = (t) => (t?.tiebreak === 'uefa'
   ? 'head-to-head points, head-to-head goal difference, head-to-head goals, then overall goal difference and goals scored'
   : 'goal difference, goals scored, then head-to-head record');
 
-const gdText = (r) => { const d = r.gf - r.ga; return d > 0 ? `+${d}` : d; };
+const gdValue = (r) => r.gf - r.ga;
+const gdText = (r) => { const d = gdValue(r); return d > 0 ? `+${d}` : d; };
+const gdColor = (r) => { const d = gdValue(r); return d > 0 ? 'text-[#15803d]' : d < 0 ? 'text-[#dc2626]' : 'text-[#475569]'; };
 
+/* Always light: no dark: variants, so the table stays readable even when the
+   browser or site switches Tailwind to dark mode. */
 function Table({ rows, compact, highlightLeader, bare }) {
   const wrap = bare
-    ? 'overflow-x-auto rounded-xl border border-[#dbe6fb] dark:border-white/10'
-    : 'overflow-x-auto rounded-2xl border border-[#dbe6fb] dark:border-white/10 bg-white dark:bg-[#0c1a3d] shadow-[0_12px_32px_-20px_rgba(10,31,92,0.25)]';
+    ? 'overflow-x-auto rounded-xl border border-[#c7d7f5] bg-white'
+    : 'overflow-x-auto rounded-2xl border border-[#c7d7f5] bg-white shadow-[0_14px_36px_-20px_rgba(10,31,92,0.4)]';
+  const th = 'py-3 px-2 text-center font-bold text-[13px] text-[#0a1f5c] whitespace-nowrap';
   return (
-    <div className={`${wrap} dark:text-slate-100`}>
-      <table className="w-full min-w-[360px] text-sm">
-        <thead className="bg-[#f4f8ff] dark:bg-white/5 text-slate-500 dark:text-slate-400">
-          <tr className="text-left [&>th]:py-3 [&>th]:px-2 [&>th]:font-semibold">
-            <th className="!pl-4">#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th>
-            {!compact && <><th>GF</th><th>GA</th></>}<th>GD</th><th className="!pr-4">Pts</th>
+    <div className={`${wrap} text-[#0a1f5c]`} style={{ color: '#0a1f5c' }}>
+      <table className="w-full min-w-[380px] text-[15px] tabular-nums">
+        <thead className="bg-[#e3edff]">
+          <tr>
+            <th className={`${th} !text-left !pl-4 w-12`}>#</th>
+            <th className={`${th} !text-left`}>Team</th>
+            <th className={th} title="Played">P</th>
+            <th className={th} title="Won">W</th>
+            <th className={th} title="Drawn">D</th>
+            <th className={th} title="Lost">L</th>
+            {!compact && <><th className={th} title="Goals for">GF</th><th className={th} title="Goals against">GA</th></>}
+            <th className={th} title="Goal difference">GD</th>
+            <th className={`${th} !pr-4`} title="Points">Pts</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => (
-            <tr key={r._id}
-              className={`border-t border-[#e6eefc] dark:border-white/10 [&>td]:py-3 [&>td]:px-2 ${
-                r.qualified ? 'bg-green-50 dark:bg-green-500/10' : highlightLeader && i === 0 ? 'bg-[#eaf1ff] dark:bg-[#1f5eff]/15' : ''}`}>
-              <td className={`!pl-4 font-bold ${r.qualified ? 'border-l-4 border-green-600' : highlightLeader && i === 0 ? 'border-l-4 border-[#1f5eff]' : ''}`}>{r.rank || i + 1}</td>
-              <td className="font-semibold whitespace-nowrap">
-                <span className="inline-flex items-center gap-2">
-                  {r.team?.logo && <img src={r.team.logo} alt="" className="w-7 h-7 rounded-full object-cover bg-white" />}{r.team?.name}
-                </span>
-              </td>
-              <td>{r.played}</td><td>{r.won}</td><td>{r.drawn}</td><td>{r.lost}</td>
-              {!compact && <><td>{r.gf}</td><td>{r.ga}</td></>}
-              <td>{gdText(r)}</td>
-              <td className="!pr-4 font-bold text-[#0a1f5c] dark:text-white">{r.points}</td>
-            </tr>
-          ))}
+          {rows.map((r, i) => {
+            const leader = highlightLeader && i === 0;
+            const tone = r.qualified ? 'bg-[#e8f8ee]' : leader ? 'bg-[#eaf1ff]' : i % 2 ? 'bg-[#f7faff]' : 'bg-white';
+            const edge = r.qualified ? 'border-l-4 border-[#16a34a]' : leader ? 'border-l-4 border-[#1f5eff]' : 'border-l-4 border-transparent';
+            return (
+              <tr key={r._id} className={`border-t border-[#dbe6fb] ${tone} [&>td]:py-3 [&>td]:px-2 [&>td]:text-center`}>
+                <td className={`!text-left !pl-3 font-bold ${edge}`}>{r.rank || i + 1}</td>
+                <td className="!text-left font-semibold whitespace-nowrap">
+                  <span className="inline-flex items-center gap-2.5">
+                    {r.team?.logo && <img src={r.team.logo} alt="" className="w-8 h-8 rounded-full object-cover bg-white ring-1 ring-[#c7d7f5]" />}
+                    {r.team?.name}
+                  </span>
+                </td>
+                <td>{r.played}</td><td>{r.won}</td><td>{r.drawn}</td><td>{r.lost}</td>
+                {!compact && <><td>{r.gf}</td><td>{r.ga}</td></>}
+                <td className={`font-semibold ${gdColor(r)}`}>{gdText(r)}</td>
+                <td className="!pr-4">
+                  <span className="inline-block min-w-[2.25rem] rounded-lg bg-[#1f5eff] px-2 py-1 font-bold text-white">{r.points}</span>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
 }
+
+const Legend = ({ compact }) => (
+  <p className="mt-2 text-[13px] leading-relaxed text-[#475569]">
+    P played · W won · D drawn · L lost · {!compact && 'GF goals for · GA goals against · '}GD goal difference · Pts points
+  </p>
+);
 
 // rows come from GET /points/table/:id (already ranked, with group / rank / qualified)
 // bare = no outer card (use inside a Panel)
@@ -57,15 +81,23 @@ export default function StandingsTable({ rows, format, compact = false, limit, b
     const groups = {};
     rows.forEach((r) => { (groups[r.group || ''] = groups[r.group || ''] || []).push(r); });
     return (
-      <div className="grid gap-6 md:grid-cols-2">
-        {Object.keys(groups).sort().map((g) => (
-          <div key={g} className="min-w-0">
-            <h3 className="font-['Barlow_Condensed'] text-xl font-bold text-[#0a1f5c] dark:text-white mb-2">{g ? `Group ${g}` : 'Not in a group yet'}</h3>
-            <Table rows={groups[g]} compact bare={bare} />
-          </div>
-        ))}
+      <div>
+        <div className="grid gap-6 md:grid-cols-2">
+          {Object.keys(groups).sort().map((g) => (
+            <div key={g} className="min-w-0">
+              <h3 className="font-['Barlow_Condensed'] text-2xl font-bold text-[#0a1f5c] mb-2">{g ? `Group ${g}` : 'Not in a group yet'}</h3>
+              <Table rows={groups[g]} compact bare={bare} />
+            </div>
+          ))}
+        </div>
+        <Legend compact />
       </div>
     );
   }
-  return <Table rows={limit ? rows.slice(0, limit) : rows} compact={compact} bare={bare} highlightLeader />;
+  return (
+    <div>
+      <Table rows={limit ? rows.slice(0, limit) : rows} compact={compact} bare={bare} highlightLeader />
+      <Legend compact={compact} />
+    </div>
+  );
 }

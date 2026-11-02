@@ -12,14 +12,14 @@ const LINKS = [
 ];
 
 /* Palette (same as FootballHome)
-   bg #060912 · ink #eef2ff · soft #93a0bd · line white/10
-   gold #f2c14e (active, focus) · cyan #3dd6d0 (Main site link) · violet #a78bfa · button text #0a0e1c
+   bg #eaf2ff→#f6f9ff · ink #0a1f5c · soft #475569 · line #c7d7f5
+   gold #1f5eff (active, focus) · cyan #0ea5e9 (Main site link) · violet #4f46e5 · button text white
    Header is always dark, matching the page below it. */
 
 const focus =
-  'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c14e] focus-visible:ring-offset-2 focus-visible:ring-offset-[#060912]';
+  'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1f5eff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f8ff]';
 
-const bar = 'w-[22px] h-[2.5px] rounded bg-[#eef2ff] transition-transform motion-reduce:transition-none';
+const bar = 'w-[22px] h-[2.5px] rounded bg-[#0a1f5c] transition-transform motion-reduce:transition-none';
 
 export default function FootballHeader() {
   const [open, setOpen] = useState(false);
@@ -28,22 +28,22 @@ export default function FootballHeader() {
   const cls = ({ isActive }) =>
     `relative px-3.5 py-2 rounded-lg text-[15px] font-semibold transition-colors motion-reduce:transition-none ${focus} ${
       isActive
-        ? 'text-[#f2c14e] bg-[#f2c14e]/10 border border-[#f2c14e]/35 after:content-[""] after:absolute after:left-3 after:right-3 after:-bottom-[9px] after:h-[3px] after:rounded-full after:bg-[#f2c14e] after:shadow-[0_0_12px_#f2c14e] max-lg:after:hidden'
-        : 'text-[#93a0bd] border border-transparent hover:text-[#eef2ff] hover:bg-white/10'
+        ? 'text-[#1f5eff] bg-[#1f5eff]/10 border border-[#1f5eff]/35 after:content-[""] after:absolute after:left-3 after:right-3 after:-bottom-[9px] after:h-[3px] after:rounded-full after:bg-[#1f5eff] after:shadow-[0_0_12px_#1f5eff] max-lg:after:hidden'
+        : 'text-[#0a1f5c] border border-transparent hover:text-[#1f5eff] hover:bg-[#e8f0ff]'
     }`;
 
   // mobile menu link
   const mobileCls = ({ isActive }) =>
     `flex items-center gap-3 px-3.5 py-3 rounded-xl text-base font-semibold transition-colors motion-reduce:transition-none ${focus} ${
       isActive
-        ? 'text-[#f2c14e] bg-[#f2c14e]/10 border border-[#f2c14e]/35'
-        : 'text-[#eef2ff] border border-transparent hover:bg-white/10'
+        ? 'text-[#1f5eff] bg-[#1f5eff]/10 border border-[#1f5eff]/35'
+        : 'text-[#0a1f5c] border border-transparent hover:bg-[#e8f0ff]'
     }`;
 
-  const mainSite = `px-3.5 py-2 rounded-lg text-[15px] font-bold text-[#3dd6d0] bg-[#3dd6d0]/10 border border-[#3dd6d0]/35 hover:brightness-125 transition ${focus}`;
+  const mainSite = `px-3.5 py-2 rounded-lg text-[15px] font-bold text-[#0369a1] bg-[#0ea5e9]/10 border border-[#0ea5e9]/35 hover:brightness-95 transition ${focus}`;
 
   return (
-    <header className="sticky top-0 z-50 bg-[#060912]/90 backdrop-blur text-[#eef2ff] shadow-[0_14px_32px_-18px_rgba(0,0,0,0.9)]">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur text-[#0a1f5c] shadow-[0_10px_30px_-18px_rgba(10,31,92,0.35)]">
       <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         {/* logo + club name */}
         <Link to="/sports/football" onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-xl ${focus}`}>
@@ -52,14 +52,14 @@ export default function FootballHeader() {
             alt="BRIU Sports Club logo"
             width="48"
             height="48"
-            className="w-12 h-12 rounded-xl bg-[#060d20] object-cover shrink-0 ring-1 ring-white/15 shadow-[0_0_24px_-6px_#f2c14e]"
+            className="w-12 h-12 rounded-xl bg-white object-cover shrink-0 ring-1 ring-[#c7d7f5] shadow-[0_8px_24px_-10px_rgba(31,94,255,0.45)]"
             onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
           />
           <span className="leading-none">
-            <span className="block font-['Barlow_Condensed'] text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(100deg,#fff_15%,#f2c14e_55%,#3dd6d0_100%)]">
+            <span className="block font-['Barlow_Condensed'] text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(100deg,#0a1f5c_30%,#1f5eff_75%)]">
               BRIU Sports Club
             </span>
-            <span className="block text-xs font-semibold text-[#3dd6d0] mt-0.5">Football</span>
+            <span className="block text-[13px] font-semibold text-[#0369a1] mt-0.5">Football</span>
           </span>
         </Link>
 
@@ -68,13 +68,13 @@ export default function FootballHeader() {
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={cls}>{l.label}</NavLink>
           ))}
-          <span className="w-px h-6 bg-white/15 mx-2" aria-hidden="true" />
+          <span className="w-px h-6 bg-[#dbe7ff] mx-2" aria-hidden="true" />
           <Link to="/" className={mainSite}>Main site</Link>
         </nav>
 
         {/* phone: hamburger */}
         <button
-          className={`lg:hidden w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex flex-col items-center justify-center gap-[5px] hover:bg-white/15 transition-colors ${focus}`}
+          className={`lg:hidden w-11 h-11 rounded-xl bg-[#e8f0ff] border border-[#c7d7f5] flex flex-col items-center justify-center gap-[5px] hover:bg-[#dbe7ff] transition-colors ${focus}`}
           aria-label="Menu"
           aria-expanded={open}
           onClick={() => setOpen(!open)}
@@ -86,18 +86,18 @@ export default function FootballHeader() {
       </div>
 
       {/* gold → cyan accent line (replaces the old blue border) */}
-      <div className="h-[3px] bg-[linear-gradient(90deg,#f2c14e,#ffdf8a_45%,#3dd6d0)] shadow-[0_0_18px_rgba(242,193,78,0.45)]" aria-hidden="true" />
+      <div className="h-[3px] bg-[linear-gradient(90deg,#1f5eff,#3b82f6_55%,#0ea5e9)] shadow-[0_0_18px_rgba(31,94,255,0.45)]" aria-hidden="true" />
 
       {/* phone menu */}
       {open && (
-        <nav className="lg:hidden bg-[#060912]/95 border-b border-white/10" aria-label="Football mobile">
+        <nav className="lg:hidden bg-white/95 border-b border-[#c7d7f5]" aria-label="Football mobile">
           <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1.5">
             {LINKS.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end} className={mobileCls} onClick={() => setOpen(false)}>
                 {l.label}
               </NavLink>
             ))}
-            <div className="h-px bg-white/10 my-2" />
+            <div className="h-px bg-[#e8f0ff] my-2" />
             <Link to="/" onClick={() => setOpen(false)} className={`${mainSite} text-center py-3`}>Main site</Link>
           </div>
         </nav>
