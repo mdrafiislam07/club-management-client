@@ -88,8 +88,10 @@ const CountUp = ({ value, loading }) => {
 };
 
 /* Auto-running marquee. Nijei cholte thake + page scroll korle scroll er direction/speed onujayi
-   aro druto cholte thake (scroll up korle ulta). Hover/touch e pause hoy. */
+   aro druto cholte thake (scroll up korle ulta). Hover/touch e pause hoy.
+   User nijeo scroll korte pare: mouse drag, touch swipe (left/right), trackpad / shift+wheel. Chhere dile momentum e cholte cholte abar auto run hoy. */
 const Marquee = ({ items, render, speed = 38, reverse = false, boost = 0.6, gap = 16 }) => {
+  const wrap = useRef(null);
   const track = useRef(null);
   const pause = useRef(false);
   const vis = useRef(true);
@@ -98,31 +100,98 @@ const Marquee = ({ items, render, speed = 38, reverse = false, boost = 0.6, gap 
 
   useEffect(() => {
     const el = track.current;
-    if (!el || base.length === 0) return undefined;
+    const box = wrap.current;
+    if (!el || !box || base.length === 0) return undefined;
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const io = 'IntersectionObserver' in window ? new IntersectionObserver(([e]) => { vis.current = e.isIntersecting; }, { rootMargin: '200px' }) : null;
     if (io) io.observe(el);
-    let x = 0; let last = performance.now(); let lastY = window.scrollY; let raf;
+
+    let x = 0; let vel = 0; let last = performance.now(); let lastY = window.scrollY; let raf;
+    let dragging = false; let captured = false; let moved = 0;
+    let startPX = 0; let startX = 0; let lastPX = 0; let lastT = 0;
     const dir = reverse ? 1 : -1;
+
+    const wrapX = () => {
+      const half = el.scrollWidth / 2;
+      if (half > 0) { x %= half; if (x > 0) x -= half; }
+    };
+    const apply = () => { el.style.transform = `translate3d(${x}px,0,0)`; };
+
+    /* mouse drag + touch swipe (vertical page scroll ke touch-action: pan-y diye alada rakha hoyeche) */
+    const down = (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      dragging = true; captured = false; moved = 0; vel = 0;
+      startPX = e.clientX; startX = x; lastPX = e.clientX; lastT = performance.now();
+    };
+    const move = (e) => {
+      if (!dragging) return;
+      const dxTotal = e.clientX - startPX;
+      moved = Math.max(moved, Math.abs(dxTotal));
+      if (moved > 5) {
+        if (!captured) { captured = true; box.classList.add('dragging'); try { box.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } }
+        x = startX + dxTotal; wrapX(); apply();
+        const now = performance.now(); const dt = (now - lastT) / 1000;
+        if (dt > 0) vel = vel * 0.6 + ((e.clientX - lastPX) / dt) * 0.4;
+        lastPX = e.clientX; lastT = now;
+      }
+    };
+    const up = (e) => {
+      if (!dragging) return;
+      dragging = false; box.classList.remove('dragging');
+      if (captured) { try { box.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ } }
+      captured = false;
+      if (moved <= 5 || performance.now() - lastT > 80) vel = 0;
+      vel = Math.max(-2500, Math.min(2500, vel));
+    };
+    /* drag shesh hole accidentally link open hobe na */
+    const click = (e) => { if (moved > 5) { e.preventDefault(); e.stopPropagation(); moved = 0; } };
+    const dragStart = (e) => e.preventDefault();
+    /* trackpad / shift + wheel diye side e scroll */
+    const wheel = (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { e.preventDefault(); x -= e.deltaX; wrapX(); apply(); }
+    };
+
+    box.addEventListener('pointerdown', down);
+    box.addEventListener('pointermove', move);
+    box.addEventListener('pointerup', up);
+    box.addEventListener('pointercancel', up);
+    box.addEventListener('click', click, true);
+    box.addEventListener('dragstart', dragStart);
+    box.addEventListener('wheel', wheel, { passive: false });
+
     const tick = (t) => {
       const dt = Math.min((t - last) / 1000, 0.05); last = t;
       const y = window.scrollY; const dy = y - lastY; lastY = y;
       const half = el.scrollWidth / 2;
       if (vis.current && half > 0 && !reduce) {
-        if (!pause.current) x += dir * speed * dt;
+        if (!dragging) {
+          if (!pause.current) x += dir * speed * dt;
+          x += vel * dt;
+          vel *= Math.pow(0.04, dt);
+          if (Math.abs(vel) < 4) vel = 0;
+        }
         x += dir * Math.max(-120, Math.min(120, dy)) * boost;
-        if (x <= -half) x += half;
-        if (x > 0) x -= half;
-        el.style.transform = `translate3d(${x}px,0,0)`;
+        wrapX(); apply();
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); if (io) io.disconnect(); };
+
+    return () => {
+      cancelAnimationFrame(raf); if (io) io.disconnect();
+      box.removeEventListener('pointerdown', down);
+      box.removeEventListener('pointermove', move);
+      box.removeEventListener('pointerup', up);
+      box.removeEventListener('pointercancel', up);
+      box.removeEventListener('click', click, true);
+      box.removeEventListener('dragstart', dragStart);
+      box.removeEventListener('wheel', wheel);
+    };
   }, [base.length, speed, reverse, boost]);
 
   return (
     <div
+      ref={wrap}
       className="mq overflow-hidden"
       onMouseEnter={() => { pause.current = true; }}
       onMouseLeave={() => { pause.current = false; }}
@@ -865,6 +934,9 @@ const Home = () => {
 
         /* marquee */
         .briu .mq { mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+        .briu .mq { cursor: grab; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+        .briu .mq.dragging { cursor: grabbing; }
+        .briu .mq a, .briu .mq img { -webkit-user-drag: none; user-drag: none; }
 
         /* scoreboard strip */
         .briu .mc { background: var(--surf); border: 1px solid var(--line); border-top: 3px solid var(--fill); transition: transform .25s ease, box-shadow .25s ease; }
