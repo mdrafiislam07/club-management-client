@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import './FootballTheme'; // theme CSS (fonts + .fb styles) inject kore
 import logo from './logo.jpg'; // client/src/pages/Football/logo.jpg
 
 const LINKS = [
@@ -11,55 +12,39 @@ const LINKS = [
   { to: '/sports/football/auction', label: 'Auction' }
 ];
 
-/* Palette (same as FootballHome)
-   bg #eaf2ff→#f6f9ff · ink #0a1f5c · soft #475569 · line #c7d7f5
-   gold #1f5eff (active, focus) · cyan #0ea5e9 (Main site link) · violet #4f46e5 · button text white
-   Header is always dark, matching the page below it. */
-
-const focus =
-  'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1f5eff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f8ff]';
-
-const bar = 'w-[22px] h-[2.5px] rounded bg-[#0a1f5c] transition-transform motion-reduce:transition-none';
+/* Main Home er moto: white bar, navy active pill, Barlow Condensed logo text */
+const bar = 'w-[22px] h-[2.5px] rounded bg-[#166534] transition-transform motion-reduce:transition-none';
 
 export default function FootballHeader() {
   const [open, setOpen] = useState(false);
 
-  // desktop nav link
   const cls = ({ isActive }) =>
-    `relative px-3.5 py-2 rounded-lg text-[15px] font-semibold transition-colors motion-reduce:transition-none ${focus} ${
-      isActive
-        ? 'text-[#1f5eff] bg-[#1f5eff]/10 border border-[#1f5eff]/35 after:content-[""] after:absolute after:left-3 after:right-3 after:-bottom-[9px] after:h-[3px] after:rounded-full after:bg-[#1f5eff] after:shadow-[0_0_12px_#1f5eff] max-lg:after:hidden'
-        : 'text-[#0a1f5c] border border-transparent hover:text-[#1f5eff] hover:bg-[#e8f0ff]'
+    `px-3.5 py-2 rounded-full text-[15px] font-semibold transition-colors motion-reduce:transition-none ${
+      isActive ? 'bg-[#166534] text-white' : 'text-[#09090B] hover:bg-[#F4F4F5] hover:text-[#166534]'
     }`;
 
-  // mobile menu link
   const mobileCls = ({ isActive }) =>
-    `flex items-center gap-3 px-3.5 py-3 rounded-xl text-base font-semibold transition-colors motion-reduce:transition-none ${focus} ${
-      isActive
-        ? 'text-[#1f5eff] bg-[#1f5eff]/10 border border-[#1f5eff]/35'
-        : 'text-[#0a1f5c] border border-transparent hover:bg-[#e8f0ff]'
+    `flex items-center px-4 py-3 rounded-xl text-base font-semibold transition-colors motion-reduce:transition-none ${
+      isActive ? 'bg-[#166534] text-white' : 'text-[#09090B] hover:bg-[#F4F4F5]'
     }`;
 
-  const mainSite = `px-3.5 py-2 rounded-lg text-[15px] font-bold text-[#0369a1] bg-[#0ea5e9]/10 border border-[#0ea5e9]/35 hover:brightness-95 transition ${focus}`;
+  const mainSite = 'px-4 py-2 rounded-full text-[15px] font-semibold text-[#166534] border border-[#E4E4E7] hover:border-[#166534] transition-colors';
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur text-[#0a1f5c] shadow-[0_10px_30px_-18px_rgba(10,31,92,0.35)]">
+    <header className="fb sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#E4E4E7]">
       <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
-        {/* logo + club name */}
-        <Link to="/sports/football" onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-xl ${focus}`}>
+        <Link to="/sports/football" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl">
           <img
             src={logo}
             alt="BRIU Sports Club logo"
             width="48"
             height="48"
-            className="w-12 h-12 rounded-xl bg-white object-cover shrink-0 ring-1 ring-[#c7d7f5] shadow-[0_8px_24px_-10px_rgba(31,94,255,0.45)]"
+            className="w-12 h-12 rounded-xl bg-white object-cover shrink-0 border border-[#E4E4E7]"
             onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
           />
           <span className="leading-none">
-            <span className="block font-['Barlow_Condensed'] text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(100deg,#0a1f5c_30%,#1f5eff_75%)]">
-              BRIU Sports Club
-            </span>
-            <span className="block text-[13px] font-semibold text-[#0369a1] mt-0.5">Football</span>
+            <span className="fd block text-2xl font-bold text-[#166534]">BRIU Sports Club</span>
+            <span className="block text-[13px] font-medium text-[#52525B] mt-0.5">Football</span>
           </span>
         </Link>
 
@@ -68,13 +53,13 @@ export default function FootballHeader() {
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={cls}>{l.label}</NavLink>
           ))}
-          <span className="w-px h-6 bg-[#dbe7ff] mx-2" aria-hidden="true" />
+          <span className="w-px h-6 bg-[#E4E4E7] mx-2" aria-hidden="true" />
           <Link to="/" className={mainSite}>Main site</Link>
         </nav>
 
         {/* phone: hamburger */}
         <button
-          className={`lg:hidden w-11 h-11 rounded-xl bg-[#e8f0ff] border border-[#c7d7f5] flex flex-col items-center justify-center gap-[5px] hover:bg-[#dbe7ff] transition-colors ${focus}`}
+          className="lg:hidden w-11 h-11 rounded-xl bg-[#F4F4F5] border border-[#E4E4E7] flex flex-col items-center justify-center gap-[5px] hover:bg-[#E4E4E7] transition-colors"
           aria-label="Menu"
           aria-expanded={open}
           onClick={() => setOpen(!open)}
@@ -85,23 +70,21 @@ export default function FootballHeader() {
         </button>
       </div>
 
-      {/* gold → cyan accent line (replaces the old blue border) */}
-      <div className="h-[3px] bg-[linear-gradient(90deg,#1f5eff,#3b82f6_55%,#0ea5e9)] shadow-[0_0_18px_rgba(31,94,255,0.45)]" aria-hidden="true" />
-
-      {/* phone menu */}
-      {open && (
-        <nav className="lg:hidden bg-white/95 border-b border-[#c7d7f5]" aria-label="Football mobile">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1.5">
+      {/* phone menu: smooth height open/close */}
+      <div
+        className={`lg:hidden grid transition-[grid-template-rows,visibility] duration-300 motion-reduce:transition-none ${open ? 'grid-rows-[1fr] visible' : 'grid-rows-[0fr] invisible'}`}
+        aria-hidden={!open}
+      >
+        <nav className="overflow-hidden" aria-label="Football mobile">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1.5 border-t border-[#E4E4E7]">
             {LINKS.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end} className={mobileCls} onClick={() => setOpen(false)}>
-                {l.label}
-              </NavLink>
+              <NavLink key={l.to} to={l.to} end={l.end} className={mobileCls} onClick={() => setOpen(false)}>{l.label}</NavLink>
             ))}
-            <div className="h-px bg-[#e8f0ff] my-2" />
+            <div className="h-px bg-[#E4E4E7] my-2" />
             <Link to="/" onClick={() => setOpen(false)} className={`${mainSite} text-center py-3`}>Main site</Link>
           </div>
         </nav>
-      )}
+      </div>
     </header>
   );
 }

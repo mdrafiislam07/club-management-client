@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import { Heart, MessageCircle, Send, Pin, Trash2, X, ArrowLeft, Sun, Moon, Search, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SportsBackground from './SportsBackground'; // path thik kore nin (SportsBackground.jsx jekhane rakhben)
 
 const Newsfeed = () => {
   const [posts, setPosts] = useState([]);
@@ -157,11 +158,14 @@ const Newsfeed = () => {
   }
 
   return (
-    <div className={`min-h-screen py-6 sm:py-12 px-3 sm:px-6 lg:px-8 font-sans antialiased transition-colors duration-500 selection:bg-indigo-500 selection:text-white ${darkMode ? 'bg-[#07090E] text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
-      <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+    <div className={`min-h-screen py-6 sm:py-12 px-3 sm:px-6 lg:px-8 font-sans antialiased transition-colors duration-500 selection:bg-indigo-500 selection:text-white ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+      {/* Pichoner full-page sports animation (nijer background color o ekhan theke ashe) */}
+      <SportsBackground dark={darkMode} />
+
+      <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 relative z-10">
         
         {/* Top Header with Back Button & Dark Mode Toggle */}
-        <div className={`flex items-center justify-between pb-5 border-b backdrop-blur-md sticky top-0 z-30 pt-2 transition-colors duration-300 ${darkMode ? 'border-slate-800/80 bg-[#07090E]/80' : 'border-slate-200/80 bg-[#F8FAFC]/80'}`}>
+        <div className={`flex items-center justify-between pb-5 border-b backdrop-blur-md sticky top-0 z-30 pt-2 transition-colors duration-300 ${darkMode ? 'border-slate-800/70 bg-[#050816]/60' : 'border-slate-200/70 bg-white/60'}`}>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate(-1)} 
@@ -247,8 +251,8 @@ const Newsfeed = () => {
                   key={post._id} 
                   className={`rounded-3xl border p-4 sm:p-6 space-y-4 sm:space-y-5 transition-all duration-300 shadow-sm hover:shadow-md ${
                     darkMode 
-                      ? 'bg-slate-900/40 border-slate-800/80 hover:border-slate-700/80 shadow-black/20' 
-                      : 'bg-white border-slate-200/80 hover:border-slate-300'
+                      ? 'bg-slate-900/70 border-slate-800/80 hover:border-slate-700/80 shadow-black/20' 
+                      : 'bg-white/90 border-slate-200/80 hover:border-slate-300'
                   }`}
                 >
                   
@@ -279,7 +283,7 @@ const Newsfeed = () => {
                       </p>
                       
                       {isContentLong && (
-                        <div className={`absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t ${darkMode ? 'from-[#090C13]' : 'from-white'} to-transparent pointer-events-none`} />
+                        <div className={`absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t ${darkMode ? 'from-[#0e1426]' : 'from-white'} to-transparent pointer-events-none`} />
                       )}
                     </div>
                     
@@ -301,7 +305,7 @@ const Newsfeed = () => {
                           onClick={() => setActiveDetailsPost(post)}
                           className={`rounded-2xl overflow-hidden border flex items-center justify-center cursor-pointer transition-colors ${darkMode ? 'border-slate-800/80 bg-slate-950/60' : 'border-slate-100 bg-slate-50'}`}
                         >
-                          <img src={postImages[0]} alt="Announcement media" className="w-full h-auto max-h-[450px] object-contain" loading="lazy" />
+                          <img src={postImages[0]} alt="Announcement media" className="w-full h-auto max-h-[450px] object-contain" loading="lazy" decoding="async" />
                         </div>
                       )}
 
@@ -309,7 +313,7 @@ const Newsfeed = () => {
                         <div className="grid grid-cols-2 gap-1.5 cursor-pointer" onClick={() => setActiveDetailsPost(post)}>
                           {postImages.map((img, idx) => (
                             <div key={idx} className={`h-52 overflow-hidden rounded-xl flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                              <img src={img} alt={`Media ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                              <img src={img} alt={`Media ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                             </div>
                           ))}
                         </div>
@@ -318,12 +322,12 @@ const Newsfeed = () => {
                       {postImages.length === 3 && (
                         <div className="grid grid-cols-2 gap-1.5 cursor-pointer" onClick={() => setActiveDetailsPost(post)}>
                           <div className={`h-64 overflow-hidden rounded-xl flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                            <img src={postImages[0]} alt="Media 1" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                            <img src={postImages[0]} alt="Media 1" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                           </div>
                           <div className="grid grid-rows-2 gap-1.5 h-64">
                             {postImages.slice(1, 3).map((img, idx) => (
                               <div key={idx} className={`overflow-hidden rounded-xl flex items-center justify-center h-full ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                                <img src={img} alt={`Media ${idx + 2}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                                <img src={img} alt={`Media ${idx + 2}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                               </div>
                             ))}
                           </div>
@@ -333,16 +337,16 @@ const Newsfeed = () => {
                       {postImages.length >= 4 && (
                         <div className="grid grid-cols-2 gap-1.5 cursor-pointer" onClick={() => setActiveDetailsPost(post)}>
                           <div className={`h-40 sm:h-48 overflow-hidden rounded-xl flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                            <img src={postImages[0]} alt="Media 1" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                            <img src={postImages[0]} alt="Media 1" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                           </div>
                           <div className={`h-40 sm:h-48 overflow-hidden rounded-xl flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                            <img src={postImages[1]} alt="Media 2" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                            <img src={postImages[1]} alt="Media 2" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                           </div>
                           <div className={`h-40 sm:h-48 overflow-hidden rounded-xl flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                            <img src={postImages[2]} alt="Media 3" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                            <img src={postImages[2]} alt="Media 3" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                           </div>
                           <div className={`h-40 sm:h-48 overflow-hidden rounded-xl relative flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
-                            <img src={postImages[3]} alt="Media 4" className="w-full h-full object-cover" />
+                            <img src={postImages[3]} alt="Media 4" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             {postImages.length > 4 && (
                               <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center text-white font-black text-lg sm:text-xl">
                                 +{postImages.length - 4}
@@ -525,7 +529,7 @@ const Newsfeed = () => {
                     : [activeDetailsPost.image]
                   ).map((imgUrl, imgIdx) => (
                     <div key={imgIdx} className={`rounded-2xl overflow-hidden border flex items-center justify-center ${darkMode ? 'border-slate-800 bg-slate-950' : 'border-slate-100 bg-slate-50'}`}>
-                      <img src={imgUrl} alt={`Detail media ${imgIdx + 1}`} className="w-full h-auto max-h-[450px] object-contain" />
+                      <img src={imgUrl} alt={`Detail media ${imgIdx + 1}`} className="w-full h-auto max-h-[450px] object-contain" loading="lazy" decoding="async" />
                     </div>
                   ))}
                 </div>
