@@ -4,11 +4,21 @@ import { PageShell, PageHero, Rv, Empty, Skeleton, Logo, LiveChip } from './Foot
 
 const STATUS = [['all', 'All'], ['live', 'Live'], ['upcoming', 'Upcoming'], ['completed', 'Results']];
 const EVENT_ICON = { goal: '⚽', yellow: '🟨', red: '🟥', sub: '🔁' };
+const TB_LABEL = { golden_goal: 'Golden goal', toss: 'Toss', other: 'Tie-breaker' };
 
 const StatusPill = ({ m }) => {
   if (m.status === 'live') return <LiveChip minute={m.minute} />;
   if (m.status === 'completed') return <span className="st st-completed">Full time</span>;
   return <span className="st st-upcoming">Upcoming</span>;
+};
+
+// draw decided by tie-breaker: "Pens 4 - 3" or "Team X won (Toss)"
+const tieBreakText = (m) => {
+  const tb = m.tieBreak;
+  if (!tb?.used || m.status !== 'completed' || m.scoreA !== m.scoreB) return '';
+  if (tb.method === 'penalty') return `Pens ${tb.penA} - ${tb.penB}`;
+  const w = tb.winner === 'A' ? m.teamA : tb.winner === 'B' ? m.teamB : null;
+  return w ? `${w.name} won (${TB_LABEL[tb.method] || 'Tie-breaker'})` : '';
 };
 
 // team A left (name, then crest next to score); team B mirrors it. Phone: crest above name.
@@ -22,6 +32,7 @@ const Team = ({ t, right }) => (
 const MatchCard = ({ m }) => {
   const live = m.status === 'live';
   const footer = [m.time, m.venue].filter(Boolean).join(' · ');
+  const tb = tieBreakText(m);
   return (
     <article className={`fbp lift p-4 sm:p-6 ${live ? 'is-live' : ''}`}>
       <div className="flex items-center justify-between gap-3 mb-5">
@@ -38,6 +49,7 @@ const MatchCard = ({ m }) => {
               : <span key={`${m.scoreA}-${m.scoreB}`} className={live ? 'score-pop' : undefined}>{m.scoreA} - {m.scoreB}</span>}
           </b>
           {m.status === 'upcoming' && m.time && <span className="block mt-1 text-[13px] sm:text-sm font-semibold b-acc">{m.time}</span>}
+          {tb && <span className="block mt-2 text-[13px] sm:text-sm font-semibold b-acc">{tb}</span>}
         </div>
         <Team t={m.teamB} right />
       </div>
@@ -78,7 +90,8 @@ export default function FootballSchedule() {
     } catch (e) { /* retry next poll */ } finally { setLoading(false); }
   }, 5000);
 
-  const base = matches.filter((m) => !tid || m.tournament?._id === tid);
+  // matches whose tournament was deleted (no tournament) are never shown
+  const base = matches.filter((m) => m.tournament && (!tid || m.tournament._id === tid));
   const count = (k) => (k === 'all' ? base.length : base.filter((m) => m.status === k).length);
   const shown = base.filter((m) => st === 'all' || m.status === st);
 

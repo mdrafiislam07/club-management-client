@@ -537,7 +537,7 @@ const Home = () => {
             {currentBanner.link ? (
               <a href={currentBanner.link} className="btn-gold">Explore more <ArrowRight className="w-4 h-4" /></a>
             ) : (
-              <Link to="/sports/cricket" className="btn-gold">Explore Cricket <ArrowRight className="w-4 h-4" /></Link>
+              <Link to="/sports" className="btn-gold">Explore Sports <ArrowRight className="w-4 h-4" /></Link>
             )}
             <Link to="/founders" className="btn-ghost">Founders panel</Link>
           </div>

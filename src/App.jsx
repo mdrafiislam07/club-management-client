@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom
 import axios from 'axios';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import Sports from './pages/Sports';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -146,6 +147,8 @@ function App() {
           />
         }>
           <Route path="/" element={<Home />} />
+          {/* Explore Sports: Cricket / Football / Badminton chooser */}
+          <Route path="/sports" element={<Sports />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/team" element={<Team />} />
           <Route path="/events" element={<Events />} />

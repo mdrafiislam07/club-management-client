@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import './FootballTheme'; // theme CSS (fonts + .fb styles) inject kore
 import logo from './logo.jpg'; // client/src/pages/Football/logo.jpg
@@ -12,79 +12,192 @@ const LINKS = [
   { to: '/sports/football/auction', label: 'Auction' }
 ];
 
-/* Main Home er moto: white bar, navy active pill, Barlow Condensed logo text */
-const bar = 'w-[22px] h-[2.5px] rounded bg-[#166534] transition-transform motion-reduce:transition-none';
+const HomeIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 11.5 12 4l9 7.5" />
+    <path d="M5 10v10h14V10" />
+    <path d="M10 20v-5h4v5" />
+  </svg>
+);
 
 export default function FootballHeader() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [logoOk, setLogoOk] = useState(true);
+  const ref = useRef(null);
 
-  const cls = ({ isActive }) =>
-    `px-3.5 py-2 rounded-full text-[15px] font-semibold transition-colors motion-reduce:transition-none ${
-      isActive ? 'bg-[#166534] text-white' : 'text-[#09090B] hover:bg-[#F4F4F5] hover:text-[#166534]'
-    }`;
+  // header compact on scroll
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
+  // phone menu: close on Escape or click outside
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('touchstart', onDown, { passive: true });
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('touchstart', onDown);
+    };
+  }, [open]);
+
+  const desktopCls = 'hdr-link py-1 transition-colors';
   const mobileCls = ({ isActive }) =>
-    `flex items-center px-4 py-3 rounded-xl text-base font-semibold transition-colors motion-reduce:transition-none ${
-      isActive ? 'bg-[#166534] text-white' : 'text-[#09090B] hover:bg-[#F4F4F5]'
+    `rounded-xl px-4 py-2.5 transition-colors duration-200 ${
+      isActive
+        ? 'bg-gradient-to-r from-amber-400/20 to-transparent text-amber-300 shadow-[inset_3px_0_0_#fbbf24]'
+        : 'text-slate-300 hover:bg-sky-500/10 hover:text-amber-200'
     }`;
-
-  const mainSite = 'px-4 py-2 rounded-full text-[15px] font-semibold text-[#166534] border border-[#E4E4E7] hover:border-[#166534] transition-colors';
 
   return (
-    <header className="fb sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#E4E4E7]">
-      <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
-        <Link to="/sports/football" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl">
-          <img
-            src={logo}
-            alt="BRIU Sports Club logo"
-            width="48"
-            height="48"
-            className="w-12 h-12 rounded-xl bg-white object-cover shrink-0 border border-[#E4E4E7]"
-            onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
-          />
-          <span className="leading-none">
-            <span className="fd block text-2xl font-bold text-[#166534]">BRIU Sports Club</span>
-            <span className="block text-[13px] font-medium text-[#52525B] mt-0.5">Football</span>
-          </span>
-        </Link>
+    <>
+      <style>{`
+        @keyframes hdr-drop { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+        .hdr-line { background: linear-gradient(90deg, transparent, #38bdf8, #fbbf24, #38bdf8, transparent); }
+        .hdr-link { position: relative; color:#cbd5e1; transition: color .3s ease, text-shadow .3s ease; }
+        .hdr-link::after {
+          content:''; position:absolute; left:50%; bottom:-6px; height:2px; width:0; border-radius:2px;
+          background: linear-gradient(90deg,#fbbf24,#fcd34d);
+          box-shadow: 0 0 8px rgba(251,191,36,.7);
+          transform: translateX(-50%); transition: width .3s ease;
+        }
+        .hdr-link:hover { color:#fde68a; text-shadow: 0 0 12px rgba(251,191,36,.5); }
+        .hdr-link:hover::after, .hdr-link[aria-current='page']::after { width:100%; }
+        .hdr-link[aria-current='page'] { color:#fcd34d; text-shadow: 0 0 12px rgba(251,191,36,.45); }
+        .hdr-menu { animation: hdr-drop .25s ease both; }
+        @media (prefers-reduced-motion: reduce) {
+          .hdr-menu { animation: none !important; }
+          .hdr-link, .hdr-link::after { transition: none !important; }
+        }
+      `}</style>
 
-        {/* desktop */}
-        <nav className="hidden lg:flex items-center gap-1" aria-label="Football">
-          {LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={cls}>{l.label}</NavLink>
-          ))}
-          <span className="w-px h-6 bg-[#E4E4E7] mx-2" aria-hidden="true" />
-          <Link to="/" className={mainSite}>Main site</Link>
-        </nav>
-
-        {/* phone: hamburger */}
-        <button
-          className="lg:hidden w-11 h-11 rounded-xl bg-[#F4F4F5] border border-[#E4E4E7] flex flex-col items-center justify-center gap-[5px] hover:bg-[#E4E4E7] transition-colors"
-          aria-label="Menu"
-          aria-expanded={open}
-          onClick={() => setOpen(!open)}
-        >
-          <span className={`${bar} ${open ? 'translate-y-[7.5px] rotate-45' : ''}`} />
-          <span className={`${bar} ${open ? 'opacity-0' : ''}`} />
-          <span className={`${bar} ${open ? '-translate-y-[7.5px] -rotate-45' : ''}`} />
-        </button>
-      </div>
-
-      {/* phone menu: smooth height open/close */}
-      <div
-        className={`lg:hidden grid transition-[grid-template-rows,visibility] duration-300 motion-reduce:transition-none ${open ? 'grid-rows-[1fr] visible' : 'grid-rows-[0fr] invisible'}`}
-        aria-hidden={!open}
+      <header
+        ref={ref}
+        /* background is inline on purpose: the football theme's .fb rule was overriding the Tailwind bg class (header looked white) */
+        style={{ backgroundColor: scrolled ? 'rgba(10,18,36,0.96)' : 'rgba(10,18,36,0.88)' }}
+        className={`fb sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 ${
+          scrolled
+            ? 'shadow-[0_10px_30px_-12px_rgba(56,189,248,0.35)]'
+            : 'shadow-[0_6px_24px_-14px_rgba(56,189,248,0.25)]'
+        }`}
       >
-        <nav className="overflow-hidden" aria-label="Football mobile">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1.5 border-t border-[#E4E4E7]">
+        {/* soft static ambient glows */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -left-10 top-1/2 h-24 w-56 -translate-y-1/2 rounded-full bg-sky-500/15 blur-3xl" />
+          <div className="absolute -right-10 top-1/2 h-24 w-56 -translate-y-1/2 rounded-full bg-amber-400/10 blur-3xl" />
+        </div>
+
+        <div className={`relative max-w-6xl mx-auto px-4 flex items-center justify-between gap-3 transition-all duration-300 ${scrolled ? 'py-2' : 'py-3.5'}`}>
+          {/* logo -> football home */}
+          <Link
+            to="/sports/football"
+            onClick={() => setOpen(false)}
+            className="group flex items-center gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+          >
+            <div className="relative h-11 w-11 flex-shrink-0">
+              <span className="absolute -inset-1.5 rounded-full bg-amber-400/25 blur-md transition-opacity duration-300 group-hover:bg-amber-400/40" />
+              <span className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-amber-300 via-amber-500 to-sky-400" />
+              <div className="relative h-full w-full rounded-full bg-[#0a1224] p-[2px] transition-transform duration-300 group-hover:scale-105">
+                {logoOk ? (
+                  <img
+                    src={logo}
+                    alt="BRIU Sports Club logo"
+                    width="44"
+                    height="44"
+                    className="h-full w-full rounded-full object-cover"
+                    onError={() => setLogoOk(false)}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-sky-600 to-blue-900 text-[11px] font-bold text-amber-200">
+                    BRIU
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <span className="flex flex-col leading-tight">
+              <span className="text-xl font-extrabold tracking-wide text-slate-50 [text-shadow:0_0_16px_rgba(56,189,248,0.35)]">
+                BRIU Sports Club
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-300/80">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]" />
+                Football
+              </span>
+            </span>
+          </Link>
+
+          {/* desktop */}
+          <nav aria-label="Football" className="hidden lg:flex items-center gap-4 xl:gap-7 font-medium">
             {LINKS.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end} className={mobileCls} onClick={() => setOpen(false)}>{l.label}</NavLink>
+              <NavLink key={l.to} to={l.to} end={l.end} className={desktopCls}>{l.label}</NavLink>
             ))}
-            <div className="h-px bg-[#E4E4E7] my-2" />
-            <Link to="/" onClick={() => setOpen(false)} className={`${mainSite} text-center py-3`}>Main site</Link>
+
+            <span className="mx-1 h-6 w-px bg-sky-400/25" aria-hidden="true" />
+
+            <Link
+              to="/"
+              className="flex items-center gap-2 rounded-xl border border-sky-400/40 bg-sky-500/10 px-3.5 py-1.5 text-sm font-semibold text-sky-100 shadow-[0_0_10px_rgba(56,189,248,0.2)] transition-all duration-300 hover:border-amber-300/60 hover:text-amber-200 hover:shadow-[0_0_16px_rgba(251,191,36,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+            >
+              <HomeIcon />
+              Main site
+            </Link>
+          </nav>
+
+          {/* phone: hamburger */}
+          <div className="lg:hidden flex items-center">
+            <button
+              onClick={() => setOpen(!open)}
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              aria-expanded={open}
+              className={`relative rounded-xl border p-2 text-slate-100 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${
+                open
+                  ? 'border-amber-300/60 bg-amber-400/15 shadow-[0_0_16px_rgba(251,191,36,0.4)]'
+                  : 'border-sky-400/30 bg-sky-500/10 shadow-[0_0_10px_rgba(56,189,248,0.25)] hover:shadow-[0_0_16px_rgba(251,191,36,0.4)]'
+              }`}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                {open
+                  ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />}
+              </svg>
+            </button>
           </div>
-        </nav>
-      </div>
-    </header>
+        </div>
+
+        {/* phone dropdown */}
+        {open && (
+          <div style={{ backgroundColor: 'rgb(10,18,36)' }}
+            className="hdr-menu lg:hidden relative border-t border-sky-400/20 shadow-[0_20px_40px_-15px_rgba(56,189,248,0.35)]">
+            <nav aria-label="Football mobile" className="max-w-6xl mx-auto px-4 pt-3 pb-5 flex flex-col gap-1.5 font-medium">
+              {LINKS.map((l) => (
+                <NavLink key={l.to} to={l.to} end={l.end} className={mobileCls} onClick={() => setOpen(false)}>{l.label}</NavLink>
+              ))}
+
+              <div className="my-2 h-px bg-sky-400/20" />
+
+              <Link
+                to="/"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-xl border border-sky-400/40 bg-sky-500/10 px-4 py-2.5 font-semibold text-sky-100 transition-colors duration-200 hover:border-amber-300/60 hover:text-amber-200"
+              >
+                <HomeIcon />
+                Main site
+              </Link>
+            </nav>
+          </div>
+        )}
+
+        {/* static neon bottom line */}
+        <div className="hdr-line absolute bottom-0 left-0 h-[2px] w-full shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
+      </header>
+    </>
   );
 }

@@ -6,9 +6,9 @@ import ChatWindow from './components/ChatWindow';
 import useChat from './hooks/useChat';
 import useVoice from './hooks/useVoice';
 import useAgentNavigation from './hooks/useAgentNavigation';
+import useSiteTour from './hooks/useSiteTour';
 
 // এই পাথগুলোতে উইজেট দেখাবে না (অ্যাডমিন প্যানেল ইত্যাদি)
-
 const HIDE_ON = ['/admin', '/sports/table-tennis/projector'];
 
 export default function AiAgentWidget() {
@@ -19,6 +19,7 @@ export default function AiAgentWidget() {
   const chat = useChat();
   const voice = useVoice();
   const nav = useAgentNavigation();
+  const tour = useSiteTour();
 
   useEffect(() => {
     try { sessionStorage.setItem('aiag_open', open ? '1' : '0'); } catch (e) { /* ignore */ }
@@ -28,10 +29,17 @@ export default function AiAgentWidget() {
 
   const handleSend = async (text) => {
     voice.stop();
+    tour.stop(); // cholte thaka tour thakle bondho kore notun kaj shuru
     const data = await chat.send(text);
     if (!data) return;
     voice.speak(data.reply);
-    nav.go(data.action);
+
+    if (data.action?.type === 'tour') {
+      setOpen(false); // chat window shoriye page dekhte dao
+      tour.start(data.action.steps);
+    } else {
+      nav.go(data.action);
+    }
   };
 
   return (
@@ -48,6 +56,12 @@ export default function AiAgentWidget() {
         />
       ) : (
         <LauncherButton onClick={() => setOpen(true)} />
+      )}
+
+      {tour.running && (
+        <button className="aiag-tour-stop" onClick={tour.stop}>
+          ■ Tour thamao ({tour.progress.i}/{tour.progress.n}: {tour.progress.label})
+        </button>
       )}
     </div>
   );
