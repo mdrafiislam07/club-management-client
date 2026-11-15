@@ -60,7 +60,7 @@ export default function AiAgentWidget() {
 
       {tour.running && (
         <button className="aiag-tour-stop" onClick={tour.stop}>
-          ■ Tour thamao ({tour.progress.i}/{tour.progress.n}: {tour.progress.label})
+          ■ Stop tour ({tour.progress.i}/{tour.progress.n}: {tour.progress.label})
         </button>
       )}
     </div>
