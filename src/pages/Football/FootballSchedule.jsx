@@ -4,21 +4,45 @@ import { PageShell, PageHero, Rv, Empty, Skeleton, Logo, LiveChip } from './Foot
 
 const STATUS = [['all', 'All'], ['live', 'Live'], ['upcoming', 'Upcoming'], ['completed', 'Results']];
 const EVENT_ICON = { goal: '⚽', yellow: '🟨', red: '🟥', sub: '🔁' };
-const TB_LABEL = { golden_goal: 'Golden goal', toss: 'Toss', other: 'Tie-breaker' };
-
 const StatusPill = ({ m }) => {
   if (m.status === 'live') return <LiveChip minute={m.minute} />;
-  if (m.status === 'completed') return <span className="st st-completed">Full time</span>;
+  if (m.status === 'completed') return <span className="st st-completed">{m.walkover?.used ? 'Walkover' : 'Full time'}</span>;
   return <span className="st st-upcoming">Upcoming</span>;
 };
 
-// draw decided by tie-breaker: "Pens 4 - 3" or "Team X won (Toss)"
-const tieBreakText = (m) => {
+// official-style result line shown under every finished match
+const reasonText = (r, loser) => ({
+  no_show: `${loser} did not turn up`,
+  insufficient_players: `${loser} could not field the minimum number of players`,
+  withdrawn: `${loser} withdrew from the match`,
+  disqualified: `${loser} was disqualified`
+}[r] || '');
+
+const resultText = (m) => {
+  if (m.status !== 'completed') return '';
+  const a = m.teamA?.name || 'Team A';
+  const b = m.teamB?.name || 'Team B';
+  const sa = m.scoreA, sb = m.scoreB;
+  if (m.walkover?.used && m.walkover.winner) {
+    const w = m.walkover.winner === 'A' ? a : b;
+    const l = m.walkover.winner === 'A' ? b : a;
+    const why = reasonText(m.walkover.reason, l);
+    return `Walkover: ${w} awarded a ${Math.max(sa, sb)}-${Math.min(sa, sb)} win${why ? ` (${why})` : ''}`;
+  }
+  if (sa !== sb) {
+    const d = Math.abs(sa - sb);
+    return `${sa > sb ? a : b} won by ${d} goal${d > 1 ? 's' : ''}`;
+  }
   const tb = m.tieBreak;
-  if (!tb?.used || m.status !== 'completed' || m.scoreA !== m.scoreB) return '';
-  if (tb.method === 'penalty') return `Pens ${tb.penA} - ${tb.penB}`;
-  const w = tb.winner === 'A' ? m.teamA : tb.winner === 'B' ? m.teamB : null;
-  return w ? `${w.name} won (${TB_LABEL[tb.method] || 'Tie-breaker'})` : '';
+  if (tb?.used && ['A', 'B'].includes(tb.winner)) {
+    const w = tb.winner === 'A' ? a : b;
+    const base = `Match drawn ${sa}-${sb}`;
+    if (tb.method === 'penalty') return `${base} · ${w} won ${Math.max(tb.penA, tb.penB)}-${Math.min(tb.penA, tb.penB)} on penalties`;
+    if (tb.method === 'golden_goal') return `${base} · ${w} won on golden goal`;
+    if (tb.method === 'toss') return `${base} · ${w} won on coin toss`;
+    return `${base} · ${w} won on tie-breaker`;
+  }
+  return m.stage === 'knockout' ? `Match drawn ${sa}-${sb} · winner to be decided` : `Match drawn ${sa}-${sb} · points shared`;
 };
 
 // team A left (name, then crest next to score); team B mirrors it. Phone: crest above name.
@@ -32,7 +56,7 @@ const Team = ({ t, right }) => (
 const MatchCard = ({ m }) => {
   const live = m.status === 'live';
   const footer = [m.time, m.venue].filter(Boolean).join(' · ');
-  const tb = tieBreakText(m);
+  const res = resultText(m);
   return (
     <article className={`fbp lift p-4 sm:p-6 ${live ? 'is-live' : ''}`}>
       <div className="flex items-center justify-between gap-3 mb-5">
@@ -49,12 +73,13 @@ const MatchCard = ({ m }) => {
               : <span key={`${m.scoreA}-${m.scoreB}`} className={live ? 'score-pop' : undefined}>{m.scoreA} - {m.scoreB}</span>}
           </b>
           {m.status === 'upcoming' && m.time && <span className="block mt-1 text-[13px] sm:text-sm font-semibold b-acc">{m.time}</span>}
-          {tb && <span className="block mt-2 text-[13px] sm:text-sm font-semibold b-acc">{tb}</span>}
         </div>
         <Team t={m.teamB} right />
       </div>
 
-      {footer && <p className="mt-5 pt-4 border-t b-line text-[13px] sm:text-sm text-center b-mute truncate">{footer}</p>}
+      {res && <p className="mt-5 text-center text-[13px] sm:text-sm font-semibold b-acc">{res}</p>}
+
+      {footer && <p className={`${res ? 'mt-4' : 'mt-5'} pt-4 border-t b-line text-[13px] sm:text-sm text-center b-mute truncate`}>{footer}</p>}
 
       {m.events?.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2">
