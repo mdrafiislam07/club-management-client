@@ -6,10 +6,7 @@ import Avatar from './Avatar';
 import { Mic, Refresh, Close } from './icons';
 
 const QUICK = [
-  'আজকের ম্যাচের স্কোর কত?',
-  'কমিটির সদস্যরা কারা?',
-  'ইভেন্টস পেজে নিয়ে যাও',
-  'ক্লাবে কীভাবে যোগ দেব?',
+  
 ];
 
 export default function ChatWindow({ messages, loading, onSend, onClose, onClear, onOpenPage, voice }) {
